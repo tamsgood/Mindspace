@@ -9,6 +9,32 @@ import { createNotification } from "@/app/actions/notifications";
 
 export type ActionState = { error?: string; success?: string };
 
+export async function enrollCourse(courseId: string) {
+  const session = await requireSession();
+  
+  // Check if already enrolled
+  const existing = await prisma.enrollment.findFirst({
+    where: { userId: session.user.id, courseId },
+  });
+
+  if (existing) {
+    throw new Error("Already enrolled in this course");
+  }
+
+  await prisma.enrollment.create({
+    data: {
+      userId: session.user.id,
+      courseId,
+      enrolledAt: new Date(),
+      progressPercent: 0,
+    },
+  });
+
+  revalidatePath("/courses");
+  revalidatePath("/learn");
+  revalidatePath("/dashboard");
+}
+
 export async function createAssignment(
   _prev: ActionState,
   formData: FormData,
@@ -222,21 +248,19 @@ export async function createMaterial(
   const content = formData.get("content")?.toString().trim();
   const typeRaw = formData.get("type")?.toString() ?? "VIDEO";
   const duration = formData.get("duration")?.toString().trim();
-  const file = formData.get("file") as File | null;
+  const fileUrl = formData.get("fileUrl")?.toString().trim() || null;
 
   if (!courseId || !moduleTitle || !lessonTitle) {
     return { error: "Course, module, and lesson title are required." };
   }
 
-  let fileUrl: string | null = null;
-  if (file && file.size > 0) {
-    // Validate: max 100MB, common formats
-    const allowedTypes = ["pdf", "zip", "pptx", "docx", "mp4", "mp3", "jpg", "png"];
-    const validation = validateFile(file, 100, allowedTypes);
-    if (!validation.valid) {
-      return { error: validation.error };
+  // Validate URL if provided
+  if (fileUrl) {
+    try {
+      new URL(fileUrl);
+    } catch {
+      return { error: "Invalid file URL format." };
     }
-    fileUrl = await saveUploadedFile(file, "materials");
   }
 
   let module = await prisma.module.findFirst({

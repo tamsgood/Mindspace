@@ -66,10 +66,12 @@ export async function getCoursesForUser(userId: string, role: Role) {
       orderBy: { title: "asc" },
     });
   }
+  // Students: return all courses with enrollment status
   return prisma.course.findMany({
     include: {
       instructor: true,
       _count: { select: { enrollments: true, modules: true } },
+      enrollments: { where: { userId }, select: { id: true } },
     },
     orderBy: { title: "asc" },
   });
