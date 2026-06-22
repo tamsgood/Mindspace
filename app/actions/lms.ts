@@ -447,3 +447,86 @@ export async function createAnnouncement(
   revalidatePath("/announcements");
   return { success: "Announcement published." };
 }
+
+
+export async function createClassRoom(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await requireMentor();
+  const courseId = formData.get("courseId")?.toString();
+  const name = formData.get("name")?.toString().trim();
+  const code = formData.get("code")?.toString().trim().toUpperCase();
+
+  if (!courseId || !name || !code) {
+    return { error: "All fields are required." };
+  }
+
+  // Check if code already exists
+  const existing = await prisma.classRoom.findUnique({
+    where: { code },
+  });
+
+  if (existing) {
+    return { error: "Class code already exists. Please use a different code." };
+  }
+
+  await prisma.classRoom.create({
+    data: {
+      courseId,
+      name,
+      code,
+      status: "ACTIVE",
+      mentorId: session.user.id,
+    },
+  });
+
+  revalidatePath(`/courses/${courseId}/classes`);
+  revalidatePath("/my-classes");
+  return { success: "Class created successfully." };
+}
+
+
+export async function joinClassByCode(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await requireSession();
+  const code = formData.get("code")?.toString().trim().toUpperCase();
+
+  if (!code) {
+    return { error: "Class code is required." };
+  }
+
+  // Find class by code
+  const classRoom = await prisma.classRoom.findUnique({
+    where: { code },
+  });
+
+  if (!classRoom) {
+    return { error: "Invalid class code. Please check and try again." };
+  }
+
+  if (classRoom.status !== "ACTIVE") {
+    return { error: "This class is no longer active." };
+  }
+
+  // Check if already enrolled
+  const existing = await prisma.classEnrollment.findUnique({
+    where: { classId_userId: { classId: classRoom.id, userId: session.user.id } },
+  });
+
+  if (existing) {
+    return { error: "You're already enrolled in this class." };
+  }
+
+  await prisma.classEnrollment.create({
+    data: {
+      classId: classRoom.id,
+      userId: session.user.id,
+    },
+  });
+
+  revalidatePath("/my-classes");
+  return { success: "Successfully joined the class!" };
+}

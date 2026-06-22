@@ -63,10 +63,10 @@ export default async function CoursesPage() {
                         Edit
                       </Link>
                       <Link
-                        href={`/learn?course=${c.id}`}
+                        href={`/courses/${c.id}/classes`}
                         className="rounded-xl border border-zinc-200 bg-white py-2 text-center text-xs font-semibold text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                       >
-                        Modules
+                        Classes
                       </Link>
                     </>
                   ) : isEnrolled ? (
