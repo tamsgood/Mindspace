@@ -2,7 +2,6 @@
 
 import { useActionState, useState } from "react";
 import { submitAssignment, type ActionState } from "@/app/actions/lms";
-import { Upload } from "lucide-react";
 
 const initial: ActionState = {};
 
@@ -19,7 +18,6 @@ export function SubmissionForm({
   }>;
 }) {
   const [state, action, pending] = useActionState(submitAssignment, initial);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedAssignment, setSelectedAssignment] = useState<string>("");
 
   const assignment = assignments.find((a) => a.id === selectedAssignment);
@@ -50,42 +48,28 @@ export function SubmissionForm({
         </select>
         {assignment ? (
           <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-            Deadline: {new Date(assignment.deadline).toLocaleString()} • Max:{" "}
-            {assignment.maxSizeMb} MB • Allowed: {assignment.allowedFileTypes}
+            Deadline: {new Date(assignment.deadline).toLocaleString()}
           </p>
         ) : null}
       </div>
 
       <div>
         <label
-          htmlFor="file"
+          htmlFor="fileUrl"
           className="text-xs font-bold uppercase tracking-wide text-zinc-600 dark:text-zinc-400"
         >
-          File Upload
+          File URL
         </label>
-        <div className="mt-2">
-          <input
-            id="file"
-            name="file"
-            type="file"
-            required
-            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-            className="hidden"
-          />
-          <label
-            htmlFor="file"
-            className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-sm text-zinc-600 transition hover:border-blue-400 hover:bg-blue-50/50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-indigo-500 dark:hover:bg-indigo-950/30"
-          >
-            <Upload className="size-5" strokeWidth={1.75} />
-            <span>
-              {selectedFile
-                ? `Selected: ${selectedFile.name}`
-                : "Click to choose file"}
-            </span>
-          </label>
-        </div>
+        <input
+          id="fileUrl"
+          name="fileUrl"
+          type="url"
+          required
+          placeholder="https://drive.google.com/... or https://dropbox.com/..."
+          className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:border-indigo-400"
+        />
         <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-          Upload your assignment file from your device.
+          Paste the link to your file on Google Drive, Dropbox, or OneDrive
         </p>
       </div>
 
@@ -100,10 +84,10 @@ export function SubmissionForm({
 
       <button
         type="submit"
-        disabled={pending || !selectedFile || !selectedAssignment}
+        disabled={pending || !selectedAssignment}
         className="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
       >
-        {pending ? "Uploading…" : "Submit assignment"}
+        {pending ? "Submitting…" : "Submit assignment"}
       </button>
     </form>
   );

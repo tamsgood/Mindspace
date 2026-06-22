@@ -72,30 +72,28 @@ export async function submitAssignment(
 ): Promise<ActionState> {
   const session = await requireSession();
   const assignmentId = formData.get("assignmentId")?.toString();
-  const file = formData.get("file") as File | null;
+  const fileUrl = formData.get("fileUrl")?.toString().trim();
 
-  if (!assignmentId || !file || file.size === 0) {
-    return { error: "Assignment and file are required." };
+  if (!assignmentId || !fileUrl) {
+    return { error: "Assignment and file URL are required." };
+  }
+
+  // Validate URL format
+  try {
+    new URL(fileUrl);
+  } catch {
+    return { error: "Invalid file URL format." };
   }
 
   const assignment = await prisma.assignment.findUnique({ where: { id: assignmentId } });
   if (!assignment) return { error: "Assignment not found." };
 
-  // Validate file
-  const allowedTypes = assignment.allowedFileTypes
-    .split(",")
-    .map((t) => t.trim().toLowerCase().replace(/^\./, ""));
-  const validation = validateFile(file, assignment.maxSizeMb, allowedTypes);
-  if (!validation.valid) {
-    return { error: validation.error };
-  }
-
-  // Save file
-  const fileUrl = await saveUploadedFile(file, "submissions");
-
   const now = new Date();
   const isLate = now > assignment.deadline;
   const status = isLate ? SubmissionStatus.LATE : SubmissionStatus.SUBMITTED;
+
+  // Extract filename from URL or use default
+  const fileName = fileUrl.split('/').pop()?.split('?')[0] || 'submission_file';
 
   const submission = await prisma.submission.upsert({
     where: {
@@ -104,13 +102,13 @@ export async function submitAssignment(
     create: {
       assignmentId,
       userId: session.user.id,
-      fileName: file.name,
+      fileName,
       fileUrl,
       status,
       submittedAt: now,
     },
     update: {
-      fileName: file.name,
+      fileName,
       fileUrl,
       status,
       submittedAt: now,
@@ -134,6 +132,11 @@ export async function submitAssignment(
   return { success: "Submission uploaded." };
 }
 
+export async function markLessonComplete(lessonId: string, courseId: string) {
+    },
+    create: {
+      assignmentId,
+      userId: session.user.id,
 export async function markLessonComplete(lessonId: string, courseId: string) {
   const session = await requireSession();
 

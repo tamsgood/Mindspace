@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { MarkCompleteButton } from "@/components/lms/MarkCompleteButton";
+import { LessonViewer } from "@/components/lms/LessonViewer";
 import { getDefaultCourseId, getLearnCourse } from "@/lib/data";
 import { ArrowLeft, CheckCircle2, Circle, FileText, HelpCircle, Play } from "lucide-react";
 
@@ -96,19 +97,12 @@ export default async function LearnPage({
       {activeLesson ? (
         <div className="min-w-0 flex-1 space-y-4">
           <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-900 shadow-sm">
-            <div className="relative aspect-video w-full bg-gradient-to-br from-zinc-800 to-zinc-950">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="flex size-16 items-center justify-center rounded-full bg-white/95 text-zinc-900 dark:text-zinc-50 shadow-lg">
-                  <Play className="ml-1 size-8" fill="currentColor" strokeWidth={0} />
-                </div>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
-                <p className="text-sm font-semibold text-white">{activeLesson.title}</p>
-                {activeLesson.duration ? (
-                  <p className="text-xs text-white/80">{activeLesson.duration}</p>
-                ) : null}
-              </div>
-            </div>
+            <LessonViewer
+              type={activeLesson.type}
+              title={activeLesson.title}
+              duration={activeLesson.duration}
+              fileUrl={activeLesson.fileUrl}
+            />
           </div>
 
           <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
