@@ -38,7 +38,7 @@ export async function createAssignment(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  await requireMentor();
+  const session = await requireMentor();
 
   const title = formData.get("title")?.toString().trim();
   const description = formData.get("description")?.toString().trim();
@@ -61,6 +61,21 @@ export async function createAssignment(
       allowedFileTypes,
     },
   });
+
+  // Notify enrolled students
+  const enrollments = await prisma.enrollment.findMany({
+    where: { courseId },
+    select: { userId: true },
+  });
+
+  for (const enrollment of enrollments) {
+    await createNotification({
+      userId: enrollment.userId,
+      title: "New assignment",
+      body: `New assignment "${title}" has been posted.`,
+      href: "/assignments",
+    });
+  }
 
   revalidatePath("/assignments");
   return { success: "Assignment created." };
@@ -238,7 +253,7 @@ export async function createMaterial(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  await requireMentor();
+  const session = await requireMentor();
   const courseId = formData.get("courseId")?.toString();
   const moduleTitle = formData.get("moduleTitle")?.toString().trim();
   const lessonTitle = formData.get("lessonTitle")?.toString().trim();
@@ -282,6 +297,26 @@ export async function createMaterial(
       order: lessonCount + 1,
     },
   });
+
+  // Notify enrolled students
+  const enrollments = await prisma.enrollment.findMany({
+    where: { courseId },
+    select: { userId: true },
+  });
+
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+    select: { title: true },
+  });
+
+  for (const enrollment of enrollments) {
+    await createNotification({
+      userId: enrollment.userId,
+      title: "New material",
+      body: `New material "${lessonTitle}" added to ${course?.title}.`,
+      href: `/learn?course=${courseId}`,
+    });
+  }
 
   revalidatePath("/learn");
   revalidatePath("/courses");
@@ -351,4 +386,64 @@ export async function deleteCourse(courseId: string): Promise<void> {
   });
 
   revalidatePath("/courses");
+}
+
+
+export async function createAnnouncement(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await requireMentor();
+  const title = formData.get("title")?.toString().trim();
+  const body = formData.get("body")?.toString().trim();
+  const courseId = formData.get("courseId")?.toString() || null;
+
+  if (!title || !body) {
+    return { error: "Title and message are required." };
+  }
+
+  await prisma.announcement.create({
+    data: {
+      title,
+      body,
+      authorId: session.user.id,
+      courseId,
+    },
+  });
+
+  // Notify users
+  if (courseId) {
+    // Course-specific: notify enrolled students
+    const enrollments = await prisma.enrollment.findMany({
+      where: { courseId },
+      select: { userId: true },
+    });
+
+    for (const enrollment of enrollments) {
+      await createNotification({
+        userId: enrollment.userId,
+        title: "New announcement",
+        body: title,
+        href: "/announcements",
+      });
+    }
+  } else {
+    // System-wide: notify all users
+    const users = await prisma.user.findMany({
+      where: { role: { in: ["STUDENT", "MENTOR"] } },
+      select: { id: true },
+    });
+
+    for (const user of users) {
+      await createNotification({
+        userId: user.id,
+        title: "New announcement",
+        body: title,
+        href: "/announcements",
+      });
+    }
+  }
+
+  revalidatePath("/announcements");
+  return { success: "Announcement published." };
 }
