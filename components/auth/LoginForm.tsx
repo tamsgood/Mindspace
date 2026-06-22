@@ -89,13 +89,6 @@ export function LoginForm() {
           Create account
         </Link>
       </p>
-
-      <div className="mt-6 rounded-xl bg-zinc-50 p-3 text-xs text-zinc-600 dark:bg-zinc-950/80 dark:text-zinc-400">
-        <p className="font-semibold text-zinc-800 dark:text-zinc-200">Demo accounts (after seed)</p>
-        <p className="mt-1">Student: andi@email.com / Student123!</p>
-        <p>Mentor: mentor@mindspace.edu / Mentor123!</p>
-        <p>Admin: admin@mindspace.edu / Admin123!</p>
-      </div>
     </div>
   );
 }
