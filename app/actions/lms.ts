@@ -25,7 +25,6 @@ export async function enrollCourse(courseId: string) {
     data: {
       userId: session.user.id,
       courseId,
-      enrolledAt: new Date(),
       progressPercent: 0,
     },
   });
