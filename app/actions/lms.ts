@@ -133,11 +133,6 @@ export async function submitAssignment(
 }
 
 export async function markLessonComplete(lessonId: string, courseId: string) {
-    },
-    create: {
-      assignmentId,
-      userId: session.user.id,
-export async function markLessonComplete(lessonId: string, courseId: string) {
   const session = await requireSession();
 
   await prisma.lessonProgress.upsert({
