@@ -36,7 +36,7 @@ export default async function CoursesPage() {
 
       <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {courses.map((c) => {
-          const isEnrolled = !staff && "enrollments" in c && c.enrollments.length > 0;
+          const isEnrolled = !staff && "enrollments" in c && Array.isArray(c.enrollments) && c.enrollments.length > 0;
           
           return (
             <li
