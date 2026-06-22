@@ -1,9 +1,9 @@
-import { auth } from "@/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const publicRoutes = ["/login", "/signup"];
+const authApiRoute = "/api/auth";
 
-// Inline RBAC logic to reduce bundle size
+// Inline RBAC logic
 const MENTOR_ONLY_ROUTES = ["/assignments/new", "/materials/new", "/students", "/mentor"];
 const ADMIN_ONLY_ROUTES = ["/admin"];
 const LEARNING_ROUTES = ["/learn", "/progress", "/submissions", "/my-classes", "/schedule"];
@@ -33,16 +33,22 @@ function canAccessRoute(role: string, pathname: string) {
   return true;
 }
 
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const isLoggedIn = !!req.auth;
-  const role = req.auth?.user?.role;
 
+  // Allow auth API routes
+  if (pathname.startsWith(authApiRoute)) {
+    return NextResponse.next();
+  }
+
+  // Check session from cookie
+  const sessionToken = req.cookies.get("authjs.session-token")?.value || 
+                       req.cookies.get("__Secure-authjs.session-token")?.value;
+
+  const isLoggedIn = !!sessionToken;
   const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
-  const isAuthApi = pathname.startsWith("/api/auth");
 
-  if (isAuthApi) return NextResponse.next();
-
+  // Root redirect
   if (pathname === "/") {
     if (isLoggedIn) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
@@ -50,6 +56,7 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
+  // Public routes
   if (isPublic) {
     if (isLoggedIn) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
@@ -57,25 +64,17 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
+  // Protected routes - require login
   if (!isLoggedIn) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Handle corrupt JWT or missing role
-  if (!role) {
-    const loginUrl = new URL("/login", req.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  if (!canAccessRoute(role, pathname)) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-
+  // For role-based checks, we'll defer to server-side in page components
+  // since we can't decode JWT in Edge Runtime without bloating bundle
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
