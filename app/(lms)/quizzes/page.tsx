@@ -100,7 +100,7 @@ export default async function QuizzesPage() {
                 </div>
               </div>
 
-              {!isMentor(session.user.role) && quiz.submission && (
+              {!isMentor(session.user.role) && 'submission' in quiz && quiz.submission && (
                 <div className="mt-3 flex items-center gap-2 rounded-lg bg-zinc-50 px-3 py-2 text-xs dark:bg-zinc-800">
                   {quiz.submission.status === "GRADED" ? (
                     <>
