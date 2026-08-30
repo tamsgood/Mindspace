@@ -2,6 +2,7 @@
 
 import { FileText, Download, ExternalLink, Play } from "lucide-react";
 import type { LessonType } from "@prisma/client";
+import { H5PPlayer } from "./H5PPlayer";
 
 interface LessonViewerProps {
   type: LessonType;
@@ -11,6 +12,11 @@ interface LessonViewerProps {
 }
 
 export function LessonViewer({ type, title, duration, fileUrl }: LessonViewerProps) {
+  // H5P Interactive Video
+  if (type === "H5P_VIDEO" && fileUrl) {
+    return <H5PPlayer h5pUrl={fileUrl} title={title} duration={duration} />;
+  }
+
   // Detect file type from URL
   const isPDF = fileUrl?.toLowerCase().includes('.pdf') || fileUrl?.includes('drive.google.com');
   const isGoogleDrive = fileUrl?.includes('drive.google.com');

@@ -33,6 +33,7 @@ export function UploadMaterialForm({ courses }: { courses: { id: string; title: 
           <label htmlFor="type" className={ui.label}>Type</label>
           <select id="type" name="type" className={`mt-2 ${ui.select}`}>
             <option value="VIDEO">Video</option>
+            <option value="H5P_VIDEO">H5P Interactive Video</option>
             <option value="PRESENTATION">Presentation (PPT/Slides)</option>
             <option value="DOCUMENT">Document (PDF/Word)</option>
             <option value="READING">Reading Material</option>
@@ -56,11 +57,12 @@ export function UploadMaterialForm({ courses }: { courses: { id: string; title: 
           id="fileUrl" 
           name="fileUrl" 
           type="url"
-          placeholder="https://drive.google.com/... or https://dropbox.com/..."
+          placeholder="https://drive.google.com/... or https://h5p.org/h5p/embed/..."
           className={`mt-2 ${ui.input}`} 
         />
         <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-          Link to file on Google Drive, Dropbox, OneDrive, or any public URL
+          For regular files: Google Drive, Dropbox, OneDrive, or any public URL<br />
+          For H5P Interactive Video: Use embed URL from H5P.org (e.g., https://h5p.org/h5p/embed/617)
         </p>
       </div>
 

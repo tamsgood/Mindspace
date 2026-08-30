@@ -8,6 +8,7 @@ import {
   CalendarDays,
   ClipboardCheck,
   FilePlus,
+  HelpCircle,
   LayoutDashboard,
   LineChart,
   LogOut,
@@ -29,6 +30,7 @@ const studentLearnLinks = [
   { href: "/courses", label: "Courses", icon: BookOpen },
   { href: "/my-classes", label: "My Classes", icon: Presentation },
   { href: "/learn", label: "Learn", icon: PlayCircle },
+  { href: "/quizzes", label: "Quizzes", icon: HelpCircle },
   { href: "/assignments", label: "Assignments", icon: ScrollText },
   { href: "/schedule", label: "Schedule", icon: CalendarDays },
   { href: "/progress", label: "Progress", icon: LineChart },
@@ -41,6 +43,7 @@ const mentorLearnLinks = [
   { href: "/courses", label: "Courses", icon: BookOpen },
   { href: "/my-classes", label: "My Classes", icon: Presentation },
   { href: "/learn", label: "Learn", icon: PlayCircle },
+  { href: "/quizzes", label: "Quizzes", icon: HelpCircle },
   { href: "/assignments", label: "Assignments", icon: ScrollText },
   { href: "/schedule", label: "Schedule", icon: CalendarDays },
   { href: "/progress", label: "Progress", icon: LineChart },
@@ -49,6 +52,7 @@ const mentorLearnLinks = [
 
 const mentorTeachLinks = [
   { href: "/materials/new", label: "Upload material", icon: FilePlus },
+  { href: "/quizzes/new", label: "Create quiz", icon: HelpCircle },
   { href: "/assignments/new", label: "Create assignment", icon: ScrollText },
   { href: "/mentor/grading", label: "Grade submissions", icon: ClipboardCheck },
   { href: "/students", label: "Students", icon: Users },

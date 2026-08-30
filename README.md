@@ -10,6 +10,7 @@ Learning Management System untuk Mindscape — Next.js 16 + Prisma + PostgreSQL 
 - **Auth**: NextAuth v5 (credentials + JWT)
 - **Charts**: Recharts
 - **UI Icons**: Lucide React
+- **Interactive Content**: H5P Standalone (for interactive videos)
 
 ## Prerequisites
 
@@ -206,11 +207,34 @@ npm run clean
 
 Ini akan hapus `.next` folder dan rebuild dari nol.
 
+### H5P Interactive Video tidak muncul
+
+**Penyebab**: Schema belum di-migrate atau URL tidak valid.
+
+**Fix**:
+1. Jalankan migration: `npm run db:migrate`
+2. Pastikan URL H5P valid (contoh: `https://h5p.org/h5p/embed/617`)
+3. Clear cache browser (Ctrl + Shift + R)
+4. Check console browser untuk error messages
+
 ## File Upload
 
 File submissions & materials disimpan di `public/uploads/`. Untuk production, ganti dengan cloud storage (Vercel Blob, S3, Cloudinary).
 
 Lihat `UPLOAD_GUIDE.md` untuk detail implementasi.
+
+### H5P Interactive Video
+
+Fitur H5P Interactive Video memungkinkan Mentor untuk upload video interaktif dengan quiz, hotspot, dan elemen interaktif lainnya. Student dapat melihat dan berinteraksi dengan konten H5P di halaman Learn.
+
+**Quick Start**:
+- Mentor: Buat content di [H5P.org](https://h5p.org), copy embed URL, upload via "Materials"
+- Student: Lihat di halaman "Learn", play dan interaksi dengan content
+
+**Dokumentasi Lengkap**:
+- Setup Guide: `H5P_VIDEO_SETUP.md`
+- User Guide: `docs/H5P_USER_GUIDE.md`
+- Quick Start: `QUICK_START_H5P.md`
 
 ## Deploy
 

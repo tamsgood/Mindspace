@@ -8,6 +8,7 @@ import { ArrowLeft, CheckCircle2, Circle, FileText, HelpCircle, Play } from "luc
 
 function LessonIcon({ type }: { type: string }) {
   if (type === "VIDEO") return <Play className="size-3.5 text-zinc-400" strokeWidth={2} />;
+  if (type === "H5P_VIDEO") return <Play className="size-3.5 text-indigo-400" strokeWidth={2} />;
   if (type === "QUIZ") return <HelpCircle className="size-3.5 text-zinc-400" strokeWidth={2} />;
   return <FileText className="size-3.5 text-zinc-400" strokeWidth={2} />;
 }
